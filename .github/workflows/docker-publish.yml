@@ -2,7 +2,8 @@ name: CI to Docker Hub
 
 on:
   push:
-    branches: [ main ]
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
@@ -13,6 +14,9 @@ jobs:
       packages: write
 
     steps:
+      - name: Set env
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+        
       - name: Cache Docker layers
         uses: actions/cache@v2
         with:
@@ -42,7 +46,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags:  ${{ secrets.DOCKER_HUB_USERNAME }}/simplewhale:latest
+          tags:  ${{ secrets.DOCKER_HUB_USERNAME }}/global-image:$RELEASE_VERSION
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
