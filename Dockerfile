@@ -11,6 +11,20 @@ RUN apt-get update -y
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash -
 RUN apt-get install nodejs -y
+RUN apt-get install build-essential -y
+
+# install python
+RUN apt install python3.8 python3-pip wget unzip -y
+
+# install AWS
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
+RUN pip3 install aws-sam-cli --upgrade
+
+# gradle settings
+RUN export GRADLE_HOME=/opt/gradle/gradle-6.6.1
+RUN export PATH=${GRADLE_HOME}/bin:${PATH}
 
 # install docker
 RUN apt-get install ca-certificates -y
