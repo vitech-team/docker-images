@@ -7,6 +7,7 @@ ENV DOCKER_TLS_CERTDIR=/certs
 
 # base operation
 RUN apt-get update -y
+# RUN git config --global core.autocrlf input
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash -
@@ -62,20 +63,25 @@ RUN set -eux; \
 	rm docker.tgz; \
 	\
 	dockerd --version; \
-	docker --version
+	docker --version \
 
+RUN apk-install bash
 COPY modprobe.sh /usr/local/bin/modprobe
 COPY docker-entrypoint.sh /usr/local/bin/
+#VOLUME:
+#  - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 RUN mkdir /certs /certs/client && chmod 1777 /certs /certs/client
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["sh"]
 
 # install go
-RUN wget https://dl.google.com/go/go1.13.linux-amd64.tar.gz
-RUN sha256sum go1.13.linux-amd64.tar.gz
-RUN tar -C /usr/local -xzf go1.13.linux-amd64.tar.gz
-RUN export PATH=$PATH:/usr/local/go/bin
-RUN /bin/bash -c "source ~/.profile"
+#RUN wget https://dl.google.com/go/go1.13.linux-amd64.tar.gz
+#RUN sha256sum go1.13.linux-amd64.tar.gz
+#RUN tar -C /usr/local -xzf go1.13.linux-amd64.tar.gz
+#RUN export PATH=$PATH:/usr/local/go/bin
+#RUN /bin/bash -c "source ~/.profile"
 
 
