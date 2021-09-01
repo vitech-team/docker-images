@@ -60,7 +60,7 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_PASS: ${{ secrets.DOCKER_HUB_PASSWORD }}
         with:
-          destination_container_repo: ${{ secrets.DOCKER_HUB_USERNAME }}/pipeline-image-core:${{  env.RELEASE_VERSION  }}
+          destination_container_repo: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/pipeline-image-core:${{  env.RELEASE_VERSION  }}
           provider: dockerhub
           readme_file: 'README.md'
 
