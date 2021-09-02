@@ -47,7 +47,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/pipeline-image-core:${{  env.RELEASE_VERSION  }}
+          tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:${{  env.RELEASE_VERSION  }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 

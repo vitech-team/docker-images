@@ -1,13 +1,10 @@
 FROM gradle:6.6.1-jdk11
-LABEL Description="ubuntu:18 + gradle:6.6.1 + jdk11 + nodejs + docker"
 
 # env
 ENV DOCKER_VERSION 20.10.8
 ENV DOCKER_TLS_CERTDIR=/certs
 
-# base operation
 RUN apt-get update -y
-# RUN git config --global core.autocrlf input
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash -
@@ -32,7 +29,6 @@ RUN apt-get install ca-certificates -y
 RUN apt-get install libc6 -y
 RUN apt-get install openssh-client -y
 RUN sed -i '/hosts:/c\hosts: files dns' /etc/nsswitch.conf
-# RUN [ -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
 RUN set -eux; \
 	\
@@ -68,13 +64,9 @@ RUN set -eux; \
 RUN apk-install bash
 COPY modprobe.sh /usr/local/bin/modprobe
 COPY docker-entrypoint.sh /usr/local/bin/
-#VOLUME:
-#  - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 RUN mkdir /certs /certs/client && chmod 1777 /certs /certs/client
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["sh"]
-
-
