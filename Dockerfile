@@ -1,18 +1,38 @@
-FROM gradle:6.8-jdk11
+FROM gradle:6.6.1-jdk11
 
 # env
 ENV DOCKER_VERSION 20.10.8
 ENV DOCKER_TLS_CERTDIR=/certs
 
 RUN apt-get update -y
+RUN apt-get install -y unzip
+RUN apt-get install -y curl
+RUN apt-get install -y jq
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash -
 RUN apt-get install nodejs -y
 RUN apt-get install build-essential -y
 
+# install npm and angular
+RUN npm install
+RUN npm install -g @angular/cli
+
+# install google
+RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+RUN apt-get -y update
+RUN apt-get -y install google-chrome-stable
+
 # install python
 RUN apt install python3.8 python3-pip wget unzip -y
+
+# install pip
+RUN apt-get install -y python-pip
+RUN pip install awscli
+
+# install git
+RUN apt-get install -y git
 
 # install AWS
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -21,7 +41,7 @@ RUN ./aws/install
 RUN pip3 install aws-sam-cli --upgrade
 
 # gradle settings
-RUN export GRADLE_HOME=/opt/gradle/gradle-6.8
+RUN export GRADLE_HOME=/opt/gradle/gradle-6.6.1
 RUN export PATH=${GRADLE_HOME}/bin:${PATH}
 
 # install docker
@@ -61,7 +81,6 @@ RUN set -eux; \
 	dockerd --version; \
 	docker --version \
 
-RUN apk-install bash
 COPY modprobe.sh /usr/local/bin/modprobe
 COPY docker-entrypoint.sh /usr/local/bin/
 
