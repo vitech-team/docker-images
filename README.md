@@ -2,7 +2,7 @@
 
 ## What inside
 
-- Gradle: 6.6.1
+- Gradle: 6.8
 - Jdk: 11
 - Docker: 20.10.18
 - Node: 14
