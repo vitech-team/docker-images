@@ -1,6 +1,7 @@
 # Docker image for CI/CD
 
 ## General information
+### Base operating system is: Ubuntu 18.04.5 LTS
 
 ### You can use this image to:
 - Launch of Spring projects on Java
