@@ -79,6 +79,7 @@ RUN set -eux; \
 	dockerd --version; \
 	docker --version \
 
+RUN apk-install bash
 COPY modprobe.sh /usr/local/bin/modprobe
 COPY docker-entrypoint.sh /usr/local/bin/
 
