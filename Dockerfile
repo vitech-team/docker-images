@@ -9,8 +9,8 @@ RUN apt-get install -y jq
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
-    apt-get install nodejs -y
-# RUN apt-get install build-essential -y
+    apt-get install nodejs -y && \
+    apt-get install build-essential -y
 
 # install npm and angular
 RUN npm install && \
