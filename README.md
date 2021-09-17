@@ -17,14 +17,16 @@
 - Docker: 20.10.18
 - Node: 14.17.6
 - Npm: 6.14.15
-- Angular/cli:12.2.5
+- Angular/cli: 12.2.5
 - Python: 3.8
-- Python-pip:9.0.1
-- Unzip:6.00
-- Curl:7.58.0
+- Python-pip3: 9.0.1
+- Unzip: 6.00
+- Curl: 7.58.0
+- Wget: 1.19.4
 - jq-1.5-1-a5b5cbe
-- Git:2.17.1
-- Aws-cli:1.19.112
+- Git: 2.17.1
+- Aws-cli: 2.2.39
+- SAM CLI: 1.31.0
 - Terraform: v1.0.7
 
 ## v0.0.15
