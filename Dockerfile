@@ -7,6 +7,9 @@ ENV DOCKER_TLS_CERTDIR=/certs
 RUN apt-get update -y
 RUN apt-get install -y jq
 
+# install certificates
+RUN apt-get install ca-certificates
+
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
     apt-get install nodejs -y && \

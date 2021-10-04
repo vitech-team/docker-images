@@ -8,6 +8,14 @@
 - Launch projects on Node JS
 - Using AWS CLI 2
 
+## v0.0.18
+
+### Add ca-certificates
+
+## v0.0.17
+
+### Size optimization
+
 ## v0.0.16
 
 ### What inside
