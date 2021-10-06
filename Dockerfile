@@ -91,3 +91,5 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN mkdir /certs /certs/client && chmod 1777 /certs /certs/client
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["sh"]
+
+RUN apt-get update -y
