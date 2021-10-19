@@ -4,11 +4,11 @@ FROM gradle:6.6.1-jdk11
 ENV DOCKER_VERSION 20.10.8
 ENV DOCKER_TLS_CERTDIR=/certs
 
-RUN apt-get update -y
-RUN apt-get install -y jq
+RUN apt update -y
+RUN apt install -y jq
 
 # install certificates
-RUN apt-get install ca-certificates
+RUN apt install ca-certificates
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
@@ -91,5 +91,13 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 RUN mkdir /certs /certs/client && chmod 1777 /certs /certs/client
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["sh"]
+
+# install OWASP dependency check
+RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v6.4.1/dependency-check-6.4.1-release.zip && \
+    unzip dependency-check-6.4.1-release.zip -d /opt/ && \
+    rm dependency-check-6.4.1-release.zip && \
+    ln -s /opt/dependency-check/bin/dependency-check.sh /usr/bin/dependency-check.sh && \
+    dependency-check.sh --scan /home/gradle/package-lock.json && \
+    rm /home/gradle/dependency-check-report.html
 
 RUN apt-get update -y
