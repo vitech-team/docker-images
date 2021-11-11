@@ -16,12 +16,12 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
     apt-get install build-essential -y
 
 # install npm and angular
-RUN npm install && \
-    npm install -g @angular/cli
+RUN npm install -g @angular/cli
 
 # install python and pip3
-RUN apt-get install python3.8 -y && \
-    apt-get install python3-pip -y
+RUN apt-get install python3 -y && \
+    apt-get install python3-pip -y && \
+    pip3 install --upgrade setuptools
 
 # install git
 RUN apt-get install -y git
@@ -39,11 +39,10 @@ RUN export GRADLE_HOME=/opt/gradle/gradle-6.6.1
 RUN export PATH=${GRADLE_HOME}/bin:${PATH}
 
 # install terraform
-RUN apt-get install -y gnupg software-properties-common curl && \
-    curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add - && \
-    apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main" && \
-    apt-get update -y && \
-    apt-get install terraform
+RUN curl https://releases.hashicorp.com/terraform/1.0.10/terraform_1.0.10_linux_amd64.zip -o terraform_1.0.10_linux_amd64.zip && \
+    unzip terraform_1.0.10_linux_amd64.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform_1.0.10_linux_amd64.zip
 
 # install docker
 RUN apt-get install ca-certificates -y && \
@@ -77,12 +76,8 @@ RUN set -eux; \
 		--strip-components 1 \
 		--directory /usr/local/bin/ \
 	; \
-	rm docker.tgz; \
-	\
-	dockerd --version; \
-	docker --version \
+	rm docker.tgz;
 
-RUN apk-install bash
 COPY modprobe.sh /usr/local/bin/modprobe
 COPY docker-entrypoint.sh /usr/local/bin/
 
@@ -96,8 +91,6 @@ CMD ["sh"]
 RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v6.4.1/dependency-check-6.4.1-release.zip && \
     unzip dependency-check-6.4.1-release.zip -d /opt/ && \
     rm dependency-check-6.4.1-release.zip && \
-    ln -s /opt/dependency-check/bin/dependency-check.sh /usr/bin/dependency-check.sh && \
-    dependency-check.sh --scan /home/gradle/package-lock.json && \
-    rm /home/gradle/dependency-check-report.html
+    ln -s /opt/dependency-check/bin/dependency-check.sh /usr/bin/dependency-check.sh
 
 RUN apt-get update -y
