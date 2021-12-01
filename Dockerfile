@@ -1,4 +1,4 @@
-FROM gradle:6.6.1-jdk11
+FROM gradle:6.8-jdk11
 
 # env
 ENV DOCKER_VERSION 20.10.8
@@ -35,7 +35,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     rm -r aws/
 
 # gradle settings
-RUN export GRADLE_HOME=/opt/gradle/gradle-6.6.1
+RUN export GRADLE_HOME=/opt/gradle/gradle-6.8
 RUN export PATH=${GRADLE_HOME}/bin:${PATH}
 
 # install terraform
