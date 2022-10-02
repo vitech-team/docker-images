@@ -4,11 +4,11 @@ FROM gradle:6.8-jdk11
 ENV DOCKER_VERSION 20.10.8
 ENV DOCKER_TLS_CERTDIR=/certs
 
-RUN apt update -y
-RUN apt install -y jq
+RUN apt-get update -y
+RUN apt-get install -y jq
 
 # install certificates
-RUN apt install ca-certificates
+RUN apt-get install ca-certificates
 
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
@@ -17,6 +17,9 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
 
 # install npm and angular
 RUN npm install -g @angular/cli
+
+# use npm packages instead of npx
+RUN npm i -g standard-version
 
 # install python and pip3
 RUN apt-get install python3 -y && \
