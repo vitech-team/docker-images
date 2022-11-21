@@ -1,12 +1,33 @@
 # Docker image for CI/CD
 
 ## General information
-### Base operating system: Ubuntu 18.04.5 LTS
+### Base operating system: Ubuntu 20.04.2 LTS
 
 ### You can use this image to:
 - Launch of Spring projects on Java
 - Launch projects on Node JS
 - Using AWS CLI 2
+
+## v1.1.0
+
+### What inside
+
+- Gradle: 6.8.3
+- openjdk version "11.0.10" 2021-01-19
+- Docker: 20.10.18
+- Node: v14.21.1
+- Npm: 9.1.2
+- Angular/cli: 15.0.0
+- Python: 3.8.10
+- Python-pip3: 20.0.2
+- Unzip: 6.00
+- Curl: 7.58.0
+- Wget: 1.19.4
+- jq-1.6
+- Git: 2.25.1
+- Aws-cli/2.9.0
+- SAM CLI: 1.65.0
+- Terraform: v1.3.5
 
 ## v0.0.18
 

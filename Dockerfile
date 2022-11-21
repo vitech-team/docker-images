@@ -44,11 +44,11 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN export GRADLE_HOME=/opt/gradle/gradle-6.8
 RUN export PATH=${GRADLE_HOME}/bin:${PATH}
 
-# install terraform
-RUN curl https://releases.hashicorp.com/terraform/1.0.10/terraform_1.0.10_linux_amd64.zip -o terraform_1.0.10_linux_amd64.zip && \
-    unzip terraform_1.0.10_linux_amd64.zip && \
-    mv terraform /usr/local/bin/ && \
-    rm terraform_1.0.10_linux_amd64.zip
+# install teraform
+RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+RUN echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+RUN apt-get update
+RUN apt-get install terraform
 
 # install docker
 RUN apt-get install ca-certificates -y && \
