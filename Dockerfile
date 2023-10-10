@@ -19,7 +19,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
 RUN npm i -g npm@latest
 
 # install npm and angular
-RUN npm install -g @angular/cli
+#RUN npm install -g @angular/cli
 
 # use npm packages instead of npx
 RUN npm i -g standard-version
