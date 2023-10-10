@@ -16,7 +16,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
     apt-get install build-essential -y
 
 # update npm
-RUN npm i -g npm@9.1.2
+RUN npm i -g npm@6.14.17
 
 # install npm and angular
 RUN npm install -g @angular/cli
