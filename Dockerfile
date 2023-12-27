@@ -11,7 +11,7 @@ RUN apt-get install -y jq
 RUN apt-get install ca-certificates
 
 # install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash - && \
     apt-get install nodejs -y && \
     apt-get install build-essential -y
 
@@ -44,13 +44,11 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN export GRADLE_HOME=/opt/gradle/gradle-6.8
 RUN export PATH=${GRADLE_HOME}/bin:${PATH}
 
-# Install required tools
-RUN apt-get update && apt-get install -y gnupg wget lsb-release
-
-# Install teraform
+# install teraform
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 RUN echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-RUN apt-get update && apt-get install -y terraform
+RUN apt-get update
+RUN apt-get install terraform
 
 # install docker
 RUN apt-get install ca-certificates -y && \
