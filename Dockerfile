@@ -44,7 +44,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN export GRADLE_HOME=/opt/gradle/gradle-7.3.3
 RUN export PATH=${GRADLE_HOME}/bin:${PATH}
 
-# install teraform
+# install terraform
 RUN apt-get update && apt-get install -y gnupg wget lsb-release
 RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
 RUN echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
