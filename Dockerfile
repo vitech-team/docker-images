@@ -16,7 +16,7 @@ RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash - && \
     apt-get install build-essential -y
 
 # update npm
-RUN npm i -g npm@9.1.2
+RUN npm i -g @commitlint/config-conventional @commitlint/cli npm@10.4.0 commitlint@14.1.0 commit-and-tag-version@12.2.0
 
 # install npm and angular
 RUN npm install -g @angular/cli
