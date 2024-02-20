@@ -36,7 +36,7 @@ RUN sdkmanager "platform-tools" "platforms;android-27" && \
 
 # install flutter
 RUN cd ~
-RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz
+RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
     tar xf flutter_linux_3.13.9-stable.tar.xz && \
 RUN export PATH="$PATH:/root/flutter/bin"
 #    flutter --version
