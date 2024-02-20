@@ -15,12 +15,12 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
     npm -v
 
 # install maestro
-RUN cd ~ && \
-    curl -Ls "https://get.maestro.mobile.dev" | bash  && \
+RUN curl -Ls "https://get.maestro.mobile.dev" | bash  && \
     ls -a
 RUN ls -a
-RUN export PATH="$PATH":"/root/.maestro/bin"
-#RUN maestro -v
+RUN pwd
+RUN export PATH="/opt/android-sdk-linux/.maestro/bin":${PATH}
+RUN maestro -v
 
 # install adroid build tools
 RUN sdkmanager "platform-tools" "platforms;android-27" && \
@@ -36,17 +36,15 @@ RUN sdkmanager "platform-tools" "platforms;android-27" && \
     sdkmanager "build-tools;30.0.3"
 
 # install flutter
-RUN cd ~ && \
-    curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
+RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
     tar xf flutter_linux_3.13.9-stable.tar.xz  && \
     ls -a
-RUN export PATH="$PATH:/root/flutter/bin"
-#    flutter --version
+RUN export PATH="/opt/android-sdk-linux/flutter/bin":${PATH}
 RUN ls -l
 #RUN flutter --version
 
 # run demo build for flutter hello world project
-RUN cd /root/flutter/examples/hello_world && \
+RUN cd flutter/examples/hello_world && \
     ls -l && \
     flutter --version && \
     flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
