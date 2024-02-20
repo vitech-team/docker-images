@@ -19,8 +19,8 @@ RUN curl -Ls "https://get.maestro.mobile.dev" | bash  && \
     ls -a
 RUN ls -a
 RUN pwd
-RUN export PATH=/root/.maestro/bin:${PATH}
-RUN maestro -v
+RUN export PATH=${PATH}:/root/.maestro/bin
+#RUN maestro -v
 
 # install adroid build tools
 RUN sdkmanager "platform-tools" "platforms;android-27" && \
@@ -39,15 +39,16 @@ RUN sdkmanager "platform-tools" "platforms;android-27" && \
 RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
     tar xf flutter_linux_3.13.9-stable.tar.xz  && \
     ls -a
-RUN export PATH=/opt/android-sdk-linux/flutter/bin:${PATH}
+RUN export PATH=${PATH}:/opt/android-sdk-linux/flutter/bin
 RUN ls -l
 #RUN flutter --version
+RUN echo ${PATH}
 
 # run demo build for flutter hello world project
-RUN cd flutter/examples/hello_world && \
-    ls -l && \
-    flutter --version && \
-    flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
+#RUN cd flutter/examples/hello_world && \
+#    ls -l && \
+#    flutter --version && \
+#    flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
 
 
 RUN apt-get update -y
