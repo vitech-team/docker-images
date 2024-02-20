@@ -1,5 +1,10 @@
 FROM androidsdk/android-31
 
+ENV PATH "${PATH}:${ANDROID_HOME}/flutter/bin"
+ENV PATH "${PATH}:${HOME}/.maestro/bin"
+
+RUN echo ${PATH}
+
 RUN apt-get update -y
 RUN apt-get install -y jq
 
@@ -19,7 +24,7 @@ RUN curl -Ls "https://get.maestro.mobile.dev" | bash  && \
     ls -a
 RUN ls -a
 RUN pwd
-RUN export PATH=${PATH}:/root/.maestro/bin
+#RUN export PATH=${PATH}:/root/.maestro/bin
 #RUN maestro -v
 
 # install adroid build tools
@@ -39,7 +44,7 @@ RUN sdkmanager "platform-tools" "platforms;android-27" && \
 RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
     tar xf flutter_linux_3.13.9-stable.tar.xz  && \
     ls -a
-RUN export PATH=${PATH}:/opt/android-sdk-linux/flutter/bin
+#RUN export PATH=${PATH}:/opt/android-sdk-linux/flutter/bin
 RUN ls -l
 #RUN flutter --version
 RUN echo ${PATH}
