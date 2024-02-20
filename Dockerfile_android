@@ -19,7 +19,7 @@ RUN curl -Ls "https://get.maestro.mobile.dev" | bash  && \
     ls -a
 RUN ls -a
 RUN pwd
-RUN export PATH="/opt/android-sdk-linux/.maestro/bin":${PATH}
+RUN export PATH="/opt/android-sdk-linux/.maestro/bin:${PATH}"
 RUN maestro -v
 
 # install adroid build tools
@@ -39,7 +39,7 @@ RUN sdkmanager "platform-tools" "platforms;android-27" && \
 RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
     tar xf flutter_linux_3.13.9-stable.tar.xz  && \
     ls -a
-RUN export PATH="/opt/android-sdk-linux/flutter/bin":${PATH}
+RUN export PATH="/opt/android-sdk-linux/flutter/bin:${PATH}"
 RUN ls -l
 #RUN flutter --version
 
