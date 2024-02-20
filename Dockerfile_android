@@ -1,0 +1,46 @@
+FROM androidsdk/android-31
+
+RUN apt-get update -y
+RUN apt-get install -y jq
+
+# install certificates
+RUN apt-get install ca-certificates
+
+# install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
+    apt-get install nodejs -y && \
+    apt-get install build-essential -y \
+    node -v \
+    npm -v
+
+# install maestro
+RUN curl -Ls "https://get.maestro.mobile.dev" | bash \
+    export PATH="$PATH":"$HOME/.maestro/bin" \
+    maestro -v
+
+# install adroid build tools
+RUN sdkmanager "platform-tools" "platforms;android-27" \
+    sdkmanager "platform-tools" "platforms;android-28" \
+    sdkmanager "platform-tools" "platforms;android-29" \
+    sdkmanager "platform-tools" "platforms;android-30" \
+    sdkmanager "platform-tools" "platforms;android-31" \
+    sdkmanager "platform-tools" "platforms;android-32" \
+    sdkmanager "platform-tools" "platforms;android-33" \
+    sdkmanager  "build-tools;28.0.3" \
+    sdkmanager  "build-tools;29.0.2" \
+    sdkmanager "build-tools;30.0.2" \
+    sdkmanager "build-tools;30.0.3"
+
+# install flutter
+RUN cd
+RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz \
+    tar xf flutter_linux_3.13.9-stable.tar.xz \
+    export PATH="$PATH:`pwd`/flutter/bin" \
+    flutter --version
+
+# run demo build for flutter hello world project
+RUN cd flutter/examples/hello_world
+RUN flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
+
+
+RUN apt-get update -y
