@@ -36,16 +36,16 @@ RUN sdkmanager "platform-tools" "platforms;android-27" && \
 
 # install flutter
 RUN cd ~
-RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
+RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz
     tar xf flutter_linux_3.13.9-stable.tar.xz && \
-    export PATH="$PATH:/root/flutter/bin" && \
-    flutter --version
-RUN ls
-RUN flutter --version
+RUN export PATH="$PATH:/root/flutter/bin"
+#    flutter --version
+RUN ls -l
+#RUN flutter --version
 
 # run demo build for flutter hello world project
 RUN cd flutter/examples/hello_world
-RUN ls
+RUN ls -l
 RUN flutter --version
 RUN flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
 
