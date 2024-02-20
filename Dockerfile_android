@@ -3,6 +3,7 @@ FROM androidsdk/android-31
 RUN apt-get update -y
 RUN apt-get install -y jq
 
+
 # install certificates
 RUN apt-get install ca-certificates
 
