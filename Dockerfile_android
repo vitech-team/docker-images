@@ -19,10 +19,8 @@ RUN curl -Ls "https://get.maestro.mobile.dev" | bash  && \
     ls -a
 RUN ls -a
 RUN pwd
-RUN export PATH="/opt/android-sdk-linux/.maestro/bin:${PATH}"
-RUN cd ~ && \
-    ls -a && \
-    pwd
+RUN export PATH="/root/.maestro/bin:${PATH}"
+RUN maestro -v
 
 # install adroid build tools
 RUN sdkmanager "platform-tools" "platforms;android-27" && \
