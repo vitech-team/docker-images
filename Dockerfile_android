@@ -21,7 +21,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
 # install python and pip3
 RUN apt-get install python3 -y && \
     apt-get install python3-pip -y && \
-    pip3 install --upgrade setuptools \
+    pip3 install --upgrade setuptools
 
 # install AWS
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
