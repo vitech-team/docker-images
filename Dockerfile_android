@@ -30,6 +30,13 @@ RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/ma
     rm -r maestro_tmp
 RUN maestro -v
 
+# install AWS
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    pip3 install aws-sam-cli --upgrade && \
+    rm awscliv2.zip && \
+    rm -r aws/
 # install adroid build tools
 #RUN sdkmanager "platform-tools" "platforms;android-27" && \
 #    sdkmanager "platform-tools" "platforms;android-28" && \
