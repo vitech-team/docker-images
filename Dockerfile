@@ -10,6 +10,8 @@ RUN apt-get install -y jq
 # install certificates
 RUN apt-get install ca-certificates
 
+# install mysql
+RUN apt-get install mysql-client
 # install nodejs
 RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash - && \
     apt-get install nodejs -y && \
