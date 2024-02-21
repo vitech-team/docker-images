@@ -1,7 +1,7 @@
 FROM androidsdk/android-31
 
 ENV PATH "${PATH}:${ANDROID_HOME}/flutter/bin"
-ENV PATH "${PATH}:${HOME}/.maestro/bin"
+ENV PATH "${PATH}:${ANDROID_HOME}/.maestro/bin"
 
 RUN echo ${PATH}
 
@@ -20,11 +20,14 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
     npm -v
 
 # install maestro
-RUN curl -Ls "https://get.maestro.mobile.dev" | bash  && \
-    ls -a
-RUN ls -a
-RUN pwd
-#RUN export PATH=${PATH}:/root/.maestro/bin
+RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" >  maestro.zip && \
+    ls -a && \
+    unzip -qo maestro.zip -d maestro_tmp &&\
+    ls -a && \
+    mkdir .maestro && \
+    cp -rf maestro_tmp/maestro/* .maestro && \
+    rm maestro.zip && \
+    rm -r maestro_tmp
 RUN maestro -v
 
 # install adroid build tools
@@ -43,6 +46,8 @@ RUN sdkmanager "platform-tools" "platforms;android-27" && \
 # install flutter
 RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
     tar xf flutter_linux_3.13.9-stable.tar.xz  && \
+    ls -a && \
+    rm flutter_linux_3.13.9-stable.tar.xz  && \
     ls -a
 #RUN export PATH=${PATH}:/opt/android-sdk-linux/flutter/bin
 RUN ls -l
