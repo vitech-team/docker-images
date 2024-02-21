@@ -19,13 +19,18 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
     node -v  && \
     npm -v
 
+# install python and pip3
+RUN apt-get install python3 -y && \
+    apt-get install python3-pip -y && \
+    pip3 install --upgrade setuptools \
+
 # install AWS
-#RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-#    unzip awscliv2.zip && \
-#    ./aws/install && \
-#    pip3 install aws-sam-cli --upgrade && \
-#    rm awscliv2.zip && \
-#    rm -r aws/
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    pip3 install aws-sam-cli --upgrade && \
+    rm awscliv2.zip && \
+    rm -r aws/
 
 # install maestro
 RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" >  maestro.zip && \
