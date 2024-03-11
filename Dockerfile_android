@@ -67,7 +67,7 @@ RUN cd flutter/examples/hello_world && \
 RUN npm install -g allure-commandline
 RUN npm install -g xunit-viewer
 
-RUN flutter pub global activate junitreport && \
+RUN flutter pub global activate junitreport  && \
     export PATH="$PATH":"$HOME/.pub-cache/bin"
 
 
