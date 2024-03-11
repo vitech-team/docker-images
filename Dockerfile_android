@@ -1,0 +1,74 @@
+FROM androidsdk/android-31
+
+ENV PATH "${PATH}:${ANDROID_HOME}/flutter/bin"
+ENV PATH "${PATH}:${ANDROID_HOME}/.maestro/bin"
+
+RUN echo ${PATH}
+
+RUN apt-get update -y
+RUN apt-get install -y jq
+
+# install certificates
+RUN apt-get install ca-certificates
+
+# install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
+    apt-get install nodejs -y && \
+    apt-get install build-essential -y && \
+    node -v  && \
+    npm -v
+
+# install python and pip3
+RUN apt-get install python3 -y && \
+    apt-get install python3-pip -y && \
+    pip3 install --upgrade setuptools
+
+# install AWS
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    pip3 install aws-sam-cli --upgrade && \
+    rm awscliv2.zip && \
+    rm -r aws/
+
+# install maestro
+RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" >  maestro.zip && \
+    unzip -qo maestro.zip -d maestro_tmp &&\
+    mkdir .maestro && \
+    cp -rf maestro_tmp/maestro/* .maestro && \
+    rm maestro.zip && \
+    rm -r maestro_tmp
+RUN maestro -v
+
+# install adroid build tools
+RUN sdkmanager "platform-tools" "platforms;android-29" && \
+#    sdkmanager "platform-tools" "platforms;android-28" && \
+#    sdkmanager "platform-tools" "platforms;android-29" && \
+    sdkmanager "platform-tools" "platforms;android-30" && \
+#    sdkmanager "platform-tools" "platforms;android-31" && \
+#    sdkmanager "platform-tools" "platforms;android-32" && \
+    sdkmanager "platform-tools" "platforms;android-33" && \
+#    sdkmanager  "build-tools;28.0.3" && \
+#    sdkmanager  "build-tools;29.0.2" && \
+    sdkmanager "build-tools;30.0.2"
+#    sdkmanager "build-tools;30.0.3"
+
+# install flutter
+RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.13.9-stable.tar.xz && \
+    tar xf flutter_linux_3.13.9-stable.tar.xz  && \
+    rm flutter_linux_3.13.9-stable.tar.xz
+
+# run demo build for flutter hello world project
+RUN cd flutter/examples/hello_world && \
+    ls -l && \
+    flutter --version && \
+    flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
+
+RUN npm install -g allure-commandline
+RUN npm install -g xunit-viewer
+
+RUN flutter pub global activate junitreport && \
+    export  PATH="$PATH":"$HOME/.pub-cache/bin"
+
+
+RUN apt-get update -y
