@@ -64,5 +64,11 @@ RUN cd flutter/examples/hello_world && \
     flutter --version && \
     flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
 
+RUN npm install -g allure-commandline
+RUN npm install -g xunit-viewer
+
+RUN flutter pub global activate junitreport && \
+    export PATH="$PATH":"$HOME/.pub-cache/bin"
+
 
 RUN apt-get update -y
