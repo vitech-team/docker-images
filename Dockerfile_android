@@ -68,7 +68,7 @@ RUN npm install -g allure-commandline
 RUN npm install -g xunit-viewer
 
 RUN flutter pub global activate junitreport && \
-    export PATH="$PATH":"$HOME/.pub-cache/bin"
+    export  PATH="$PATH":"$HOME/.pub-cache/bin"
 
 
 RUN apt-get update -y
