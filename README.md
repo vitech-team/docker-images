@@ -8,6 +8,11 @@
 - Launch projects on Node JS
 - Using AWS CLI 2
 
+## v1.5.18
+
+- Gradle: 8.7
+- openjdk version "17"
+
 ## v1.3.0 
 
 - Gradle: 7.3.3
