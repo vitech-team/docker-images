@@ -31,15 +31,6 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
     rm awscliv2.zip && \
     rm -r aws/
 
-# install maestro
-#RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" >  maestro.zip && \
-#    unzip -qo maestro.zip -d maestro_tmp &&\
-#    mkdir .maestro && \
-#    cp -rf maestro_tmp/maestro/* .maestro && \
-#    rm maestro.zip && \
-#    rm -r maestro_tmp
-#RUN maestro -v
-
 # install adroid build tools
 RUN sdkmanager "platform-tools" "platforms;android-29" && \
 #    sdkmanager "platform-tools" "platforms;android-28" && \
