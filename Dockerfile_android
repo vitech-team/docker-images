@@ -54,9 +54,9 @@ RUN sdkmanager "platform-tools" "platforms;android-29" && \
 #    sdkmanager "build-tools;30.0.3"
 
 # install flutter
-RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.16.9-stable.tar.xz && \
-    tar xf flutter_linux_3.16.9-stable.tar.xz  && \
-    rm flutter_linux_3.16.9-stable.tar.xz
+RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.6-stable.tar.xz && \
+    tar xf flutter_linux_3.19.6-stable.tar.xz  && \
+    rm flutter_linux_3.19.6-stable.tar.xz
 
 # run demo build for flutter hello world project
 RUN cd flutter/examples/hello_world && \
