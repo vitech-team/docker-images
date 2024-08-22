@@ -41,34 +41,34 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
 #RUN maestro -v
 
 # install adroid build tools
-RUN sdkmanager "platform-tools" "platforms;android-29" && \
+#RUN sdkmanager "platform-tools" "platforms;android-29" && \
 #    sdkmanager "platform-tools" "platforms;android-28" && \
 #    sdkmanager "platform-tools" "platforms;android-29" && \
-    sdkmanager "platform-tools" "platforms;android-30" && \
+#    sdkmanager "platform-tools" "platforms;android-30" && \
 #    sdkmanager "platform-tools" "platforms;android-31" && \
 #    sdkmanager "platform-tools" "platforms;android-32" && \
-    sdkmanager "platform-tools" "platforms;android-33" && \
+#    sdkmanager "platform-tools" "platforms;android-33" && \
 #    sdkmanager  "build-tools;28.0.3" && \
 #    sdkmanager  "build-tools;29.0.2" && \
-    sdkmanager "build-tools;30.0.2"
+#    sdkmanager "build-tools;30.0.2"
 #    sdkmanager "build-tools;30.0.3"
 
 # install flutter
-RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.6-stable.tar.xz && \
-    tar xf flutter_linux_3.19.6-stable.tar.xz  && \
-    rm flutter_linux_3.19.6-stable.tar.xz
+RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.16.9-stable.tar.xz && \
+    tar xf flutter_linux_3.16.9-stable.tar.xz  && \
+    rm flutter_linux_3.16.9-stable.tar.xz
 
 # run demo build for flutter hello world project
-RUN cd flutter/examples/hello_world && \
-    ls -l && \
-    flutter --version && \
-    flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
+#RUN cd flutter/examples/hello_world && \
+#    ls -l && \
+#    flutter --version && \
+#    flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
 
 RUN npm install -g allure-commandline
 RUN npm install -g xunit-viewer
 
-RUN flutter pub global activate junitreport && \
-    export  PATH="$PATH":"$HOME/.pub-cache/bin"
+#RUN flutter pub global activate junitreport && \
+#    export  PATH="$PATH":"$HOME/.pub-cache/bin"
 
 
-RUN apt-get update -y
+#RUN apt-get update -y
