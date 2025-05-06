@@ -22,7 +22,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
 # install java 17 \
 RUN curl -LO "https://download.oracle.com/java/17/archive/jdk-17.0.12_linux-x64_bin.tar.gz" && \
     tar -xzf jdk-17.0.12_linux-x64_bin.tar.gz && \
-    rm jdk-17.0.12_linux-x64_bin.tar.gz && \
+    rm jdk-17.0.12_linux-x64_bin.tar.gz
 
 RUN java --version
 
