@@ -2,7 +2,7 @@ FROM androidsdk/android-31
 
 ENV PATH "${PATH}:${ANDROID_HOME}/flutter/bin"
 ENV PATH "${PATH}:${ANDROID_HOME}/.maestro/bin"
-ENV PATH "${PATH}:${ANDROID_HOME}/jdk-17.0.12/bin"
+ENV PATH "${ANDROID_HOME}/jdk-17.0.12/bin:${PATH}"
 
 RUN echo ${PATH}
 
