@@ -2,6 +2,7 @@ FROM androidsdk/android-31
 
 ENV PATH "${PATH}:${ANDROID_HOME}/flutter/bin"
 ENV PATH "${PATH}:${ANDROID_HOME}/.maestro/bin"
+ENV PATH "${PATH}:${ANDROID_HOME}/jdk-17.0.12/bin"
 
 RUN echo ${PATH}
 
@@ -22,11 +23,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
 RUN curl -LO "https://download.oracle.com/java/17/archive/jdk-17.0.12_linux-x64_bin.tar.gz" && \
     tar -xzf jdk-17.0.12_linux-x64_bin.tar.gz && \
     rm jdk-17.0.12_linux-x64_bin.tar.gz && \
-    export JAVA_HOME="$(pwd)/jdk-17.0.12" && \
-    export PATH="$JAVA_HOME/bin:$PATH"  && \
-    java --version
 
-RUN echo ${PATH}
 RUN java --version
 
 # install python and pip3
