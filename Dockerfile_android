@@ -40,13 +40,13 @@ RUN java --version
 #    rm -r aws/
 
 # install maestro
-#RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" >  maestro.zip && \
-#    unzip -qo maestro.zip -d maestro_tmp &&\
-#    mkdir .maestro && \
-#    cp -rf maestro_tmp/maestro/* .maestro && \
-#    rm maestro.zip && \
-#    rm -r maestro_tmp
-#RUN maestro -v
+RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" >  maestro.zip && \
+    unzip -qo maestro.zip -d maestro_tmp &&\
+    mkdir .maestro && \
+    cp -rf maestro_tmp/maestro/* .maestro && \
+    rm maestro.zip && \
+    rm -r maestro_tmp
+RUN maestro -v
 
 # install adroid build tools
 RUN sdkmanager "platform-tools" "platforms;android-29" && \
