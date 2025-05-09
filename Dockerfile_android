@@ -45,7 +45,8 @@ RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/ma
     mkdir .maestro && \
     cp -rf maestro_tmp/maestro/* .maestro && \
     rm maestro.zip && \
-    rm -r maestro_tmp
+    rm -r maestro_tmp 
+
 RUN maestro -v
 
 # install adroid build tools
