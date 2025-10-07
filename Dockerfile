@@ -11,7 +11,7 @@ RUN apt-get install -y jq
 RUN apt-get install ca-certificates
 
 # install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_18.x  | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_20.x  | bash - && \
     apt-get install nodejs -y && \
     apt-get install build-essential -y
 
