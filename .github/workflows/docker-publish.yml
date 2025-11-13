@@ -35,6 +35,9 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
+      - name: Verify AWS CLI version
+        run: aws --version
+
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
