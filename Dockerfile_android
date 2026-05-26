@@ -71,7 +71,7 @@ RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable
 RUN cd flutter/examples/hello_world && \
     ls -l && \
     flutter --version && \
-    flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x86,android-x64 --split-per-abi
+    flutter build apk --debug --target=lib/main.dart --build-name=0.0 --target-platform=android-arm,android-arm64,android-x64 --split-per-abi
 
 RUN npm install -g allure-commandline
 RUN npm install -g xunit-viewer
