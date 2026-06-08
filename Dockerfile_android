@@ -19,7 +19,7 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
     node -v  && \
     npm -v
 
-# install java 17 \
+# install java 17
 RUN curl -LO "https://download.oracle.com/java/17/archive/jdk-17.0.12_linux-x64_bin.tar.gz" && \
     tar -xzf jdk-17.0.12_linux-x64_bin.tar.gz && \
     rm jdk-17.0.12_linux-x64_bin.tar.gz
@@ -41,26 +41,18 @@ RUN java --version
 
 # install maestro
 RUN curl --fail --location --progress-bar  "https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip" >  maestro.zip && \
-    unzip -qo maestro.zip -d maestro_tmp &&\
+    unzip -qo maestro.zip -d maestro_tmp && \
     mkdir .maestro && \
     cp -rf maestro_tmp/maestro/* .maestro && \
     rm maestro.zip && \
-    rm -r maestro_tmp 
+    rm -r maestro_tmp
 
 RUN maestro -v
 
-# install adroid build tools
-RUN sdkmanager "platform-tools" "platforms;android-29" && \
-#    sdkmanager "platform-tools" "platforms;android-28" && \
-#    sdkmanager "platform-tools" "platforms;android-29" && \
-    sdkmanager "platform-tools" "platforms;android-30" && \
-#    sdkmanager "platform-tools" "platforms;android-31" && \
-#    sdkmanager "platform-tools" "platforms;android-32" && \
+# install android build tools
+RUN sdkmanager "platform-tools" "platforms;android-30" && \
     sdkmanager "platform-tools" "platforms;android-33" && \
-#    sdkmanager  "build-tools;28.0.3" && \
-#    sdkmanager  "build-tools;29.0.2" && \
     sdkmanager "build-tools;30.0.2"
-#    sdkmanager "build-tools;30.0.3"
 
 # install flutter
 RUN curl -O https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.41.9-stable.tar.xz && \
@@ -77,7 +69,15 @@ RUN npm install -g allure-commandline
 RUN npm install -g xunit-viewer
 
 RUN flutter pub global activate junitreport && \
-    export  PATH="$PATH":"$HOME/.pub-cache/bin"
-
+    export PATH="$PATH":"$HOME/.pub-cache/bin"
 
 RUN apt-get update -y
+
+# install additional NDK and build/platform tools (new layer on top of current build)
+RUN yes | sdkmanager \
+        "ndk;28.2.13676358" \
+        "build-tools;34.0.0" \
+        "build-tools;36.0.0" \
+        "platforms;android-34" \
+        "platforms;android-35" \
+    && yes | sdkmanager --licenses
