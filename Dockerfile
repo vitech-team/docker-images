@@ -4,15 +4,19 @@ FROM gradle:8.7-jdk17
 ENV DOCKER_VERSION 20.10.8
 ENV DOCKER_TLS_CERTDIR=/certs
 
+# node version (override at build time with --build-arg if needed)
+ARG NODE_MAJOR=22
+ARG NODE_VERSION=22.22.3
+
 RUN apt-get update -y
 RUN apt-get install -y jq
 
 # install certificates
 RUN apt-get install ca-certificates
 
-# install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_20.x  | bash - && \
-    apt-get install nodejs -y && \
+# install nodejs (pinned to ${NODE_VERSION})
+RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR}.x  | bash - && \
+    apt-get install nodejs=${NODE_VERSION}-1nodesource1 -y && \
     apt-get install build-essential -y
 
 # update npm
