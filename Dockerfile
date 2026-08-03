@@ -1,4 +1,4 @@
-FROM gradle:8.7-jdk17
+FROM gradle:8.7-jdk21-jammy
 
 # env
 ENV DOCKER_VERSION 20.10.8
