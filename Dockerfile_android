@@ -4,6 +4,9 @@ ENV PATH "${PATH}:${ANDROID_HOME}/flutter/bin"
 ENV PATH "${PATH}:${ANDROID_HOME}/.maestro/bin"
 ENV PATH "${ANDROID_HOME}/jdk-17.0.12/bin:${PATH}"
 
+ARG NODE_MAJOR=22
+ARG NODE_VERSION=22.22.3
+
 RUN echo ${PATH}
 
 RUN apt-get update -y
@@ -13,9 +16,9 @@ RUN apt-get install -y jq
 RUN apt-get install ca-certificates
 
 # install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_16.x  | bash - && \
-    apt-get install nodejs -y && \
-    apt-get install build-essential -y && \
+RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR}.x  | bash - && \
+    apt-get install nodejs=${NODE_VERSION}-1nodesource1 -y && \
+    apt-get install build-essential -y \
     node -v  && \
     npm -v
 
