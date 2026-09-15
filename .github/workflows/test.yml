@@ -1,0 +1,23 @@
+name: test
+
+on:
+  push:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: dhi.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.DHI_TOKEN }}
+
+      - name: DHI Pull
+        run: docker pull dhi.io/gradle:8-jdk17-debian-dev
