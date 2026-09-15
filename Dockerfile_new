@@ -1,11 +1,12 @@
 FROM debian:13-slim AS packager
 
-RUN apt-get update && apt-get install -y --no-install-recommends apt dpkg ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends apt dpkg ca-certificates gpgv
 
 FROM dhi.io/gradle:8-jdk17-debian-dev
 
 COPY --from=packager /usr/bin/apt* /usr/bin/
 COPY --from=packager /usr/bin/dpkg* /usr/bin/
+COPY --from=packager /usr/bin/gpgv /usr/bin/
 COPY --from=packager /usr/lib/ /usr/lib/
 COPY --from=packager /etc/apt/ /etc/apt/
 COPY --from=packager /var/lib/dpkg/ /var/lib/dpkg/
