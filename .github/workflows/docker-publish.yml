@@ -48,8 +48,8 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: false
           tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:base
-          #cache-from: type=local,src=/tmp/.buildx-cache
-          #cache-to: type=local,dest=/tmp/.buildx-cache
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Build Runner
         id: docker_build

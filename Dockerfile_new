@@ -11,5 +11,6 @@ COPY --from=packager /etc/apt/ /etc/apt/
 COPY --from=packager /var/lib/dpkg/ /var/lib/dpkg/
 COPY --from=packager /var/lib/apt/ /var/lib/apt/
 COPY --from=packager /etc/ssl/certs/ /etc/ssl/certs/
+COPY --from=packager /usr/share/dpkg/ /usr/share/dpkg/
 
 RUN mkdir -p /var/log/apt && apt-get update
