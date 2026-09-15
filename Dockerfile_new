@@ -1,0 +1,15 @@
+FROM debian:13-slim AS packager
+
+RUN apt-get update && apt-get install -y --no-install-recommends apt dpkg ca-certificates
+
+FROM dhi.io/gradle:8-jdk17-debian-dev
+
+COPY --from=packager /usr/bin/apt* /usr/bin/
+COPY --from=packager /usr/bin/dpkg* /usr/bin/
+COPY --from=packager /usr/lib/ /usr/lib/
+COPY --from=packager /etc/apt/ /etc/apt/
+COPY --from=packager /var/lib/dpkg/ /var/lib/dpkg/
+COPY --from=packager /var/lib/apt/ /var/lib/apt/
+COPY --from=packager /etc/ssl/certs/ /etc/ssl/certs/
+
+RUN mkdir -p /var/log/apt && apt-get update

@@ -2,8 +2,6 @@ name: CI to Docker Hub
 
 on:
   push:
-    tags:
-      - "v*.*.*"
 
 jobs:
   build:
@@ -15,8 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Cache Docker layers
         uses: actions/cache@v4
@@ -26,14 +22,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - name: Check Out Repo
-        uses: actions/checkout@v2
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
+      - name: Login to DHI (Docker Hardened Image)
+        uses: docker/login-action@v4
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          registry: dhi.io
+          username: apentsak
+          password: ${{ secrets.DHI_TOKEN }}
+
+      - name: DHI Pull
+        run: docker pull dhi.io/gradle:8-jdk17-debian-dev
 
       - name: Verify AWS CLI version
         run: aws --version
@@ -42,90 +39,31 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Build and push
+      - name: Build BASE
+        id: docker_build_base
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile_new
+          builder: ${{ steps.buildx.outputs.name }}
+          push: false
+          tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:base
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Build Runner
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: ./
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:${{  env.RELEASE_VERSION  }}
+          push: false
+          tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:runner
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache
 
-      - name: git checkout
-        uses: actions/checkout@v2
-
-      - name: push README to Dockerhub
-        uses: christian-korneck/update-container-description-action@v1
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_PASS: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        with:
-          destination_container_repo: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:${{  env.RELEASE_VERSION  }}
-          provider: dockerhub
-          readme_file: 'README.md'
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
-  build_android:
-
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Check Out Repo
-        uses: actions/checkout@v2
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build and push
-        id: docker_android_build
-        uses: docker/build-push-action@v2
-        with:
-          context: ./
-          file: ./Dockerfile_android
-          builder: ${{ steps.buildx.outputs.name }}
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd-android:${{  env.RELEASE_VERSION  }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
-
-      - name: git checkout
-        uses: actions/checkout@v2
-
-      - name: push README to Dockerhub
-        uses: christian-korneck/update-container-description-action@v1
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_PASS: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        with:
-          destination_container_repo: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd-android:${{  env.RELEASE_VERSION  }}
-          provider: dockerhub
-          readme_file: 'README.md'
-
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+      - name: Image SCOUT CVES
+        run: |
+          docker scout cves ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:base
+          docker scout cves ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:runner
