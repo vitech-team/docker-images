@@ -30,7 +30,7 @@ jobs:
           password: ${{ secrets.DHI_TOKEN }}
 
       - name: DHI Pull
-        run: docker pull dhi.io/gradle:8-jdk17-debian-dev
+        run: docker pull dhi.io/gradle:8-jdk21-alpine-dev
 
       - name: Verify AWS CLI version
         run: aws --version
@@ -38,18 +38,6 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
-
-      - name: Build BASE
-        id: docker_build_base
-        uses: docker/build-push-action@v6
-        with:
-          context: ./
-          file: ./Dockerfile_new
-          builder: ${{ steps.buildx.outputs.name }}
-          push: false
-          tags: ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:base
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Build Runner
         id: docker_build
@@ -65,5 +53,4 @@ jobs:
 
       - name: Image SCOUT CVES
         run: |
-          docker scout cves ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:base
           docker scout cves ${{ secrets.DOCKER_HUB_ORGANIZATION_NAME }}/ci-cd:runner
