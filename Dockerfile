@@ -1,80 +1,108 @@
-FROM gradle:8.7-jdk17
+# syntax=docker/dockerfile:1
+FROM gradle:8-jdk21-noble
 
-# env
-ENV DOCKER_VERSION 20.10.8
-ENV DOCKER_TLS_CERTDIR=/certs
+# Fail a RUN if any command in a pipe fails (curl | tar, curl | bash, ...),
+# not just the last one.
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# node version (override at build time with --build-arg if needed)
+# -----------------------------------------------------------------------
+# Build arguments — override any of these at build time with --build-arg
+# -----------------------------------------------------------------------
 ARG NODE_MAJOR=22
 ARG NODE_VERSION=22.22.3
+ARG TERRAFORM_VERSION=1.9.8
+ARG AWS_CLI_VERSION=2.36.46
+ARG DEPENDENCY_CHECK_VERSION=12.1.0
+ARG TERRAFORM_DOCS_VERSION=0.24.0
+ARG TERRASCAN_VERSION=1.19.9
+ARG TFLINT_VERSION=0.64.0
+ARG TFSEC_VERSION=1.28.14
+ARG INFRACOST_VERSION=0.10.45
+ARG TFUPDATE_VERSION=0.10.2
+ARG HCLEDIT_VERSION=0.2.18
 
-RUN apt-get update -y
-RUN apt-get install -y jq
+ENV DOCKER_VERSION=29.8.1 \
+    DOCKER_TLS_CERTDIR=/certs \
+    DEBIAN_FRONTEND=noninteractive
 
-# install certificates
-RUN apt-get install ca-certificates
+# -----------------------------------------------------------------------
+# Base OS packages (update + install + cache cleanup in a single layer)
+# -----------------------------------------------------------------------
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        git \
+        gnupg \
+        jq \
+        libc6 \
+        lsb-release \
+        openssh-client \
+        python3 \
+        python3-pip \
+        software-properties-common \
+        unzip \
+        wget \
+    && sed -i '/hosts:/c\hosts: files dns' /etc/nsswitch.conf \
+    && rm -rf /var/lib/apt/lists/*
 
-# install nodejs (pinned to ${NODE_VERSION})
-RUN curl -sL https://deb.nodesource.com/setup_${NODE_MAJOR}.x  | bash - && \
-    apt-get install nodejs=${NODE_VERSION}-1nodesource1 -y && \
-    apt-get install build-essential -y
+# -----------------------------------------------------------------------
+# Node.js (pinned to ${NODE_VERSION})
+# -----------------------------------------------------------------------
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs=${NODE_VERSION}-1nodesource1 && \
+    rm -rf /var/lib/apt/lists/*
 
-# update npm
-RUN npm i -g @commitlint/config-conventional @commitlint/cli npm@10.4.0 commitlint@14.1.0 commit-and-tag-version@12.2.0
+# global npm tooling
+RUN npm install -g \
+        npm@10.4.0 \
+        @angular/cli \
+        @commitlint/cli \
+        @commitlint/config-conventional \
+        commitlint@14.1.0 \
+        commit-and-tag-version@12.2.0 \
+        standard-version \
+    && npm cache clean --force
 
-# install npm and angular
-RUN npm install -g @angular/cli
+# -----------------------------------------------------------------------
+# Python tooling
+# -----------------------------------------------------------------------
+RUN pip3 install --no-cache-dir --break-system-packages --ignore-installed \
+        --upgrade setuptools pre-commit checkov aws-sam-cli
 
-# use npm packages instead of npx
-RUN npm i -g standard-version
-
-# install python and pip3
-RUN apt-get install python3 -y && \
-    apt-get install python3-pip -y && \
-    pip3 install --upgrade setuptools
-
-# install git
-RUN apt-get install -y git
-
-# install AWS
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
+# -----------------------------------------------------------------------
+# AWS CLI v2 (pinned)
+# -----------------------------------------------------------------------
+RUN curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-${AWS_CLI_VERSION}.zip" -o awscliv2.zip && \
+    unzip -q awscliv2.zip && \
     ./aws/install && \
-    pip3 install aws-sam-cli --upgrade && \
-    rm awscliv2.zip && \
-    rm -r aws/
+    rm -rf awscliv2.zip aws
 
-# gradle settings
-RUN export GRADLE_HOME=/opt/gradle/gradle-7.3.3
-RUN export PATH=${GRADLE_HOME}/bin:${PATH}
+# -----------------------------------------------------------------------
+# Terraform (pinned binary from releases.hashicorp.com — no extra apt repo)
+# -----------------------------------------------------------------------
+RUN curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -o terraform.zip && \
+    unzip -q terraform.zip -d /usr/local/bin && \
+    rm terraform.zip
 
-# install teraform
-RUN apt-get update && apt-get install -y gnupg wget lsb-release
-RUN wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-RUN echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-RUN apt-get update && apt-get install -y terraform
-
-# install docker
-RUN apt-get install ca-certificates -y && \
-    apt-get install libc6 -y && \
-    apt-get install openssh-client -y && \
-    sed -i '/hosts:/c\hosts: files dns' /etc/nsswitch.conf
-
+# -----------------------------------------------------------------------
+# Docker CLI static binary (pinned to ${DOCKER_VERSION})
+# -----------------------------------------------------------------------
 RUN set -eux; \
-	\
 	apkArch="$(uname -m)"; \
 	case "$apkArch" in \
 		'x86_64') \
-			url='https://download.docker.com/linux/static/stable/x86_64/docker-20.10.8.tgz'; \
+			url="https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz"; \
 			;; \
 		'armhf') \
-			url='https://download.docker.com/linux/static/stable/armel/docker-20.10.8.tgz'; \
+			url="https://download.docker.com/linux/static/stable/armel/docker-${DOCKER_VERSION}.tgz"; \
 			;; \
 		'armv7') \
-			url='https://download.docker.com/linux/static/stable/armhf/docker-20.10.8.tgz'; \
+			url="https://download.docker.com/linux/static/stable/armhf/docker-${DOCKER_VERSION}.tgz"; \
 			;; \
 		'aarch64') \
-			url='https://download.docker.com/linux/static/stable/aarch64/docker-20.10.8.tgz'; \
+			url="https://download.docker.com/linux/static/stable/aarch64/docker-${DOCKER_VERSION}.tgz"; \
 			;; \
 		*) echo >&2 "error: unsupported architecture ($apkArch)"; exit 1 ;; \
 	esac; \
@@ -88,32 +116,38 @@ RUN set -eux; \
 	; \
 	rm docker.tgz;
 
+# -----------------------------------------------------------------------
+# OWASP Dependency-Check (pinned)
+# -----------------------------------------------------------------------
+RUN wget -q -O dependency-check.zip "https://github.com/jeremylong/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip" && \
+    unzip -q dependency-check.zip -d /opt/ && \
+    rm dependency-check.zip && \
+    ln -s /opt/dependency-check/bin/dependency-check.sh /usr/bin/dependency-check.sh
+
+# -----------------------------------------------------------------------
+# Terraform ecosystem tooling — versions pinned via build args instead of
+# querying the GitHub API for "latest" (rate-limited and non-reproducible)
+# -----------------------------------------------------------------------
+RUN curl -fsSL "https://github.com/terraform-docs/terraform-docs/releases/download/v${TERRAFORM_DOCS_VERSION}/terraform-docs-v${TERRAFORM_DOCS_VERSION}-linux-amd64.tar.gz" | tar -xzf - -C /usr/bin terraform-docs && \
+    curl -fsSL "https://github.com/tenable/terrascan/releases/download/v${TERRASCAN_VERSION}/terrascan_${TERRASCAN_VERSION}_Linux_x86_64.tar.gz" | tar -xzf - -C /usr/bin terrascan && \
+    terrascan init && \
+    curl -fsSL "https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_amd64.zip" -o tflint.zip && \
+    unzip -q tflint.zip && rm tflint.zip && mv tflint /usr/bin/ && \
+    curl -fsSL "https://github.com/aquasecurity/tfsec/releases/download/v${TFSEC_VERSION}/tfsec-linux-amd64" -o /usr/bin/tfsec && \
+    chmod +x /usr/bin/tfsec && \
+    curl -fsSL "https://github.com/infracost/infracost/releases/download/v${INFRACOST_VERSION}/infracost-linux-amd64.tar.gz" | tar -xzf - -C /usr/bin && \
+    mv /usr/bin/infracost-linux-amd64 /usr/bin/infracost && \
+    curl -fsSL "https://github.com/minamijoyo/tfupdate/releases/download/v${TFUPDATE_VERSION}/tfupdate_${TFUPDATE_VERSION}_linux_amd64.tar.gz" | tar -xzf - -C /usr/bin tfupdate && \
+    curl -fsSL "https://github.com/minamijoyo/hcledit/releases/download/v${HCLEDIT_VERSION}/hcledit_${HCLEDIT_VERSION}_linux_amd64.tar.gz" | tar -xzf - -C /usr/bin hcledit
+
+# -----------------------------------------------------------------------
+# Entrypoint
+# -----------------------------------------------------------------------
 COPY modprobe.sh /usr/local/bin/modprobe
 COPY docker-entrypoint.sh /usr/local/bin/
 
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh /usr/local/bin/modprobe && \
+    mkdir -p /certs/client && chmod 1777 /certs /certs/client
 
-RUN mkdir /certs /certs/client && chmod 1777 /certs /certs/client
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["sh"]
-
-# install OWASP dependency check
-RUN wget https://github.com/jeremylong/DependencyCheck/releases/download/v6.4.1/dependency-check-6.4.1-release.zip && \
-    unzip dependency-check-6.4.1-release.zip -d /opt/ && \
-    rm dependency-check-6.4.1-release.zip && \
-    ln -s /opt/dependency-check/bin/dependency-check.sh /usr/bin/dependency-check.sh
-
-# Install pre-commit framework
-RUN apt-get install -y software-properties-common && \
-    python3 -m pip install --upgrade pip && \
-    pip3 install --no-cache-dir pre-commit && \
-    pip3 install --no-cache-dir checkov && \
-    curl -L "$(curl -s https://api.github.com/repos/terraform-docs/terraform-docs/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > terraform-docs.tgz && tar -xzf terraform-docs.tgz terraform-docs && rm terraform-docs.tgz && chmod +x terraform-docs &&  mv terraform-docs /usr/bin/ && \
-    curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E -m 1 "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz && tar -xzf terrascan.tar.gz terrascan && rm terrascan.tar.gz &&  mv terrascan /usr/bin/ && terrascan init && \
-    curl -L "$(curl -s https://api.github.com/repos/terraform-linters/tflint/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.zip")" > tflint.zip && unzip tflint.zip && rm tflint.zip &&  mv tflint /usr/bin/ && \
-    curl -L "$(curl -s https://api.github.com/repos/aquasecurity/tfsec/releases/latest | grep -o -E -m 1 "https://.+?tfsec-linux-amd64")" > tfsec && chmod +x tfsec &&  mv tfsec /usr/bin/ && \
-    curl -L "$(curl -s https://api.github.com/repos/infracost/infracost/releases/latest | grep -o -E -m 1 "https://.+?-linux-amd64.tar.gz")" > infracost.tgz && tar -xzf infracost.tgz && rm infracost.tgz &&  mv infracost-linux-amd64 /usr/bin/infracost && \
-    curl -L "$(curl -s https://api.github.com/repos/minamijoyo/tfupdate/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > tfupdate.tar.gz && tar -xzf tfupdate.tar.gz tfupdate && rm tfupdate.tar.gz &&  mv tfupdate /usr/bin/ && \
-    curl -L "$(curl -s https://api.github.com/repos/minamijoyo/hcledit/releases/latest | grep -o -E -m 1 "https://.+?_linux_amd64.tar.gz")" > hcledit.tar.gz && tar -xzf hcledit.tar.gz hcledit && rm hcledit.tar.gz &&  mv hcledit /usr/bin/
-
-RUN apt-get update -y
