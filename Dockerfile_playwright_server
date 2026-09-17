@@ -38,7 +38,12 @@ EXPOSE 4444 5900 7900
 COPY playwright-server-entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=5 \
-    CMD bash -c 'echo > /dev/tcp/127.0.0.1/${PLAYWRIGHT_PORT}' || exit 1
+# Liveness is more than the server socket. The server is PID 1 and keeps listening even if Xvfb
+# dies, so a container whose X display is gone still reports healthy while every headed launch
+# fails. Xvfb is a hard dependency of a headed browser, so the check covers both. The VNC layer
+# is deliberately excluded: it is optional and can be switched off, so its absence is not ill
+# health.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+    CMD bash -c 'echo > /dev/tcp/127.0.0.1/${PLAYWRIGHT_PORT} && xdpyinfo -display ${DISPLAY} > /dev/null 2>&1' || exit 1
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
