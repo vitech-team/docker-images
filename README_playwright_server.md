@@ -19,7 +19,7 @@ Port numbers match the Selenium standalone images, so tooling built around those
 docker run -d --name playwright-server \
     --shm-size 1g \
     -p 4444:4444 -p 7900:7900 \
-    vitechteam/playwright-server:1.57.0
+    vitechteam/playwright-server:1.57.0-2
 ```
 
 Connect a Playwright client to `ws://localhost:4444/pw`, and open
@@ -36,6 +36,30 @@ ws://localhost:4444/pw?launch-options={"headless":false,"channel":"chromium","ar
 
 Each connection gets its own browser process, so one crashing browser does not take the others
 with it. `PLAYWRIGHT_MAX_CLIENTS` bounds how many are served at once.
+
+## Tags
+
+| Tag | Moves? | Use it for |
+|---|---|---|
+| `1.57.0-2` | never | deployments — an exact, reproducible build |
+| `1.57.0` | yes, to the newest revision of that Playwright version | development, and anywhere a rebuild should be picked up |
+
+The first number is the Playwright version the server runs. **It must match the Playwright
+client library connecting to it**; a mismatch is refused on connect with
+`428 Precondition Required`, naming neither version.
+
+The second number is the image revision. It exists because the image sometimes needs rebuilding
+without Playwright having moved — a base image update, a fix to the entrypoint, a new package.
+Without it there would be no way to say "same Playwright, newer image" except by mutating a
+published tag.
+
+Moving the bare `1.57.0` tag is safe for that reason: the part that has to match your client is
+still fixed, and only the image build underneath it changes.
+
+**There is deliberately no `latest`.** It would silently change the Playwright version, which is
+the one thing that cannot change without breaking the client it talks to.
+
+Published for `linux/amd64` and `linux/arm64`.
 
 ## Configuration
 
