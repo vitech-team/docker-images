@@ -8,8 +8,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # -----------------------------------------------------------------------
 # Build arguments — override any of these at build time with --build-arg
 # -----------------------------------------------------------------------
-ARG NODE_MAJOR=22
-ARG NODE_VERSION=22.22.3
+ARG NODE_MAJOR=24
+ARG NODE_VERSION=24.21.0
 ARG TERRAFORM_VERSION=1.9.8
 ARG AWS_CLI_VERSION=2.36.46
 ARG DEPENDENCY_CHECK_VERSION=12.1.0
