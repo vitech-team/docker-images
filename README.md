@@ -1,5 +1,17 @@
 # Docker image for CI/CD
 
+## Images in this repository
+
+| Dockerfile | Image | Released by tag |
+|---|---|---|
+| `Dockerfile` | `vitechteam/ci-cd` | `v*.*.*` |
+| `Dockerfile_android` | `vitechteam/ci-cd-android` | `v*.*.*` |
+| `Dockerfile_playwright_server` | `vitechteam/playwright-server` | `playwright-server-v*.*.*` — see [README_playwright_server.md](README_playwright_server.md) |
+
+The Playwright server has its own tag prefix because its version is the Playwright release it
+ships, which moves independently of the CI/CD image versions. The rest of this document
+describes the CI/CD images.
+
 ## General information
 ### Base operating system: Ubuntu 20.04.2 LTS
 

@@ -1,0 +1,88 @@
+# playwright-server
+
+A [Playwright](https://playwright.dev) browser server that runs browsers on a virtual display
+and exports that display over VNC, so a remote automation session can be watched while it runs.
+
+Built on the official Playwright image, with the Playwright CLI pinned to the image tag.
+
+| Port | Purpose |
+|------|---------|
+| 4444 | Playwright server — what clients connect to |
+| 7900 | noVNC over http — watch the session in a browser |
+| 5900 | raw VNC — for a native VNC client |
+
+Port numbers match the Selenium standalone images, so tooling built around those carries over.
+
+## Usage
+
+```sh
+docker run -d --name playwright-server \
+    --shm-size 1g \
+    -p 4444:4444 -p 7900:7900 \
+    vitechteam/playwright-server:1.57.0
+```
+
+Connect a Playwright client to `ws://localhost:4444/pw`, and open
+<http://localhost:7900/vnc.html> (password `secret`) to watch.
+
+`--shm-size 1g` is not optional: Chromium crashes on Docker's default 64MB of shared memory.
+
+Per-connection browser settings travel in the `launch-options` query parameter, so one server
+can serve callers wanting different browsers:
+
+```
+ws://localhost:4444/pw?launch-options={"headless":false,"channel":"chromium","args":["--no-sandbox"]}
+```
+
+Each connection gets its own browser process, so one crashing browser does not take the others
+with it. `PLAYWRIGHT_MAX_CLIENTS` bounds how many are served at once.
+
+## Configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `PLAYWRIGHT_PORT` | `4444` | Port the server listens on |
+| `PLAYWRIGHT_PATH` | `/pw` | Endpoint path — part of the connect URL |
+| `PLAYWRIGHT_MAX_CLIENTS` | `10` | Concurrent clients served at once |
+| `SCREEN_GEOMETRY` | `1440x900x24` | Virtual display size |
+| `START_VNC` | `true` | Set `false` to run without the VNC layer |
+| `VNC_PASSWORD` | `secret` | VNC password — **override this** |
+
+## Headless or headed
+
+Headless is the client's choice, not the server's: pass `"headless": false` in `launch-options`
+and the session becomes visible over VNC. The image always starts the virtual display so that
+choice stays open.
+
+Two things worth knowing when choosing:
+
+- a headless browser renders nothing, so there is nothing to watch over VNC
+- Playwright's `headless: true` selects a stripped `headless_shell` binary that reports no
+  plugins and no `window.chrome`; passing `"channel": "chromium"` selects the full browser
+  instead, and headed additionally drops the `HeadlessChrome` token from the user agent
+
+## Version lockstep
+
+The image tag is the Playwright version, and the client library must match it. Playwright
+checks the protocol version on connect and rejects a mismatch with `428 Precondition Required`,
+naming neither version — so a drifted pair is hard to diagnose from the error alone.
+
+The image pins the server for this reason. A bare `npx playwright run-server` would resolve
+against the npm registry and silently run the newest release rather than the one the image was
+built for.
+
+## Security
+
+**The server is unauthenticated.** Anyone who can reach port 4444 can drive a browser from
+wherever the container runs, including at any network the container can see. Do not expose it
+to the internet. The same applies to the VNC ports; set `START_VNC=false` where they are not
+needed, and always override `VNC_PASSWORD`.
+
+**Connections are long-lived WebSockets.** A client holds one socket open for the duration of
+its work, so an idle timeout on a proxy or load balancer in front of the server will kill
+sessions in progress. This differs from Selenium's short HTTP request-response calls, which
+survive an idle timeout untouched.
+
+## Licence
+
+Apache-2.0, as the rest of this repository.
