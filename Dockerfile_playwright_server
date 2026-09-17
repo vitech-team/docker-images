@@ -1,0 +1,49 @@
+# Playwright browser server with a VNC-observable virtual display.
+#
+# The image tag and the Playwright client library version used by callers must move together:
+# Playwright checks the client/server protocol version on connect and refuses a mismatch.
+ARG PLAYWRIGHT_VERSION=1.57.0
+FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble
+ARG PLAYWRIGHT_VERSION
+
+# The base image already carries Xvfb and the browsers. Only the VNC layer is added:
+# fluxbox so windows get decorations and a background, x11vnc to export the display,
+# novnc + websockify to reach it from a browser without a VNC client.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        x11vnc \
+        x11-utils \
+        fluxbox \
+        novnc \
+        websockify \
+    && rm -rf /var/lib/apt/lists/*
+
+# The base image ships the browsers and Node but not the playwright package itself, so a bare
+# `npx playwright` resolves against the registry and silently runs the newest release. The client
+# then fails the connect with `428 Precondition Required`, naming neither version. Pin it here.
+RUN npm install -g playwright@${PLAYWRIGHT_VERSION}
+
+ENV DISPLAY=:99 \
+    SCREEN_GEOMETRY=1440x900x24 \
+    PLAYWRIGHT_PORT=4444 \
+    PLAYWRIGHT_PATH=/pw \
+    PLAYWRIGHT_MAX_CLIENTS=10 \
+    VNC_PORT=5900 \
+    NO_VNC_PORT=7900 \
+    START_VNC=true
+
+# 4444 Playwright server, 5900 raw VNC, 7900 noVNC over http.
+# Port numbers match the Selenium standalone images, so tooling built around those carries over.
+EXPOSE 4444 5900 7900
+
+COPY playwright-server-entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Liveness is more than the server socket. The server is PID 1 and keeps listening even if Xvfb
+# dies, so a container whose X display is gone still reports healthy while every headed launch
+# fails. Xvfb is a hard dependency of a headed browser, so the check covers both. The VNC layer
+# is deliberately excluded: it is optional and can be switched off, so its absence is not ill
+# health.
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
+    CMD bash -c 'echo > /dev/tcp/127.0.0.1/${PLAYWRIGHT_PORT} && xdpyinfo -display ${DISPLAY} > /dev/null 2>&1' || exit 1
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
