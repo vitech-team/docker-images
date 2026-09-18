@@ -29,8 +29,8 @@ jobs:
 
       - name: Parse and validate tag
         # Fails the run on a malformed tag rather than publishing something mislabelled, since a
-        # wrong version here is exactly what the client/server protocol check will reject later
-        # with an error naming neither version.
+        # wrong version here is exactly what the client/server protocol check will reject later,
+        # after the image has already been published under the wrong name.
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF#refs/tags/}"

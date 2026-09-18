@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # The base image ships the browsers and Node but not the playwright package itself, so a bare
 # `npx playwright` resolves against the registry and silently runs the newest release. The client
-# then fails the connect with `428 Precondition Required`, naming neither version. Pin it here.
+# then fails the connect with `428 Precondition Required`, whose body names both versions. Pin
+# it here.
 RUN npm install -g playwright@${PLAYWRIGHT_VERSION}
 
 # From 1.60 the server drops client-supplied browser args unless started with --unsafe, which
