@@ -61,7 +61,7 @@ still do real damage on their own.
 
 The first number is the Playwright version the server runs. **It must match the Playwright
 client library connecting to it**; a mismatch is refused on connect with
-`428 Precondition Required`, naming neither version.
+`428 Precondition Required`, and the response names both versions.
 
 The second number is the image revision. It exists because the image sometimes needs rebuilding
 without Playwright having moved — a base image update, a fix to the entrypoint, a new package.
@@ -103,8 +103,8 @@ Two things worth knowing when choosing:
 ## Version lockstep
 
 The image tag is the Playwright version, and the client library must match it. Playwright
-checks the protocol version on connect and rejects a mismatch with `428 Precondition Required`,
-naming neither version — so a drifted pair is hard to diagnose from the error alone.
+checks the protocol version on connect and rejects a mismatch with `428 Precondition Required`.
+The response names both versions, so a drifted pair is legible from the error alone.
 
 The image pins the server for this reason. A bare `npx playwright run-server` would resolve
 against the npm registry and silently run the newest release rather than the one the image was
