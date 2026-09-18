@@ -112,14 +112,32 @@ jobs:
           npm install --no-save playwright@${{ env.PLAYWRIGHT_VERSION }}
           node -e "
             const { chromium } = require('playwright');
-            const opts = encodeURIComponent(JSON.stringify({ channel: 'chromium', args: ['--no-sandbox'] }));
+            const connect = (o, timeout) => chromium.connect(
+              'ws://localhost:4444/pw?launch-options=' + encodeURIComponent(JSON.stringify(o)),
+              { timeout: timeout || 30000 });
             (async () => {
-              const b = await chromium.connect('ws://localhost:4444/pw?launch-options=' + opts);
+              const b = await connect({ channel: 'chromium', args: ['--no-sandbox', '--disable-blink-features=AutomationControlled', '--user-agent=SmokeProbe/1.0'] });
               const p = await b.newPage();
               await p.setContent('<h1 id=ok>ok</h1>');
               if (await p.textContent('#ok') !== 'ok') throw new Error('page did not render');
+              const seen = await p.evaluate(() => ({ ua: navigator.userAgent, wd: navigator.webdriver }));
               await b.close();
-              console.log('client ${{ env.PLAYWRIGHT_VERSION }} connected and rendered a page');
+              // From Playwright 1.60 the server drops client args unless run with --unsafe, and
+              // this image patches that back in for args alone. An image whose patch silently
+              // no-opped still renders pages perfectly, so only these two assertions catch it.
+              if (!seen.ua.startsWith('SmokeProbe/')) throw new Error('launch-options args did not reach the browser');
+              if (seen.wd !== false) throw new Error('navigator.webdriver was not suppressed by the args');
+              // The other half of the contract: executablePath must stay gated. --unsafe would
+              // ungate it, and on an unauthenticated server that is arbitrary command execution.
+              let gated = true;
+              try {
+                const ep = await connect({ channel: 'chromium', args: ['--no-sandbox'], executablePath: '/bin/sh' }, 60000);
+                await ep.close();
+              } catch (e) {
+                gated = false;
+              }
+              if (!gated) throw new Error('executablePath was honoured - the server is running unsafely');
+              console.log('client ${{ env.PLAYWRIGHT_VERSION }} connected, rendered, args applied, executablePath gated');
             })().catch(e => { console.error(e); process.exit(1); });
           "
           curl -sf -o /dev/null http://localhost:7900/vnc.html || { echo '::error::noVNC not serving'; exit 1; }

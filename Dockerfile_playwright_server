@@ -2,7 +2,7 @@
 #
 # The image tag and the Playwright client library version used by callers must move together:
 # Playwright checks the client/server protocol version on connect and refuses a mismatch.
-ARG PLAYWRIGHT_VERSION=1.57.0
+ARG PLAYWRIGHT_VERSION=1.63.0
 FROM mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble
 ARG PLAYWRIGHT_VERSION
 
@@ -21,6 +21,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # `npx playwright` resolves against the registry and silently runs the newest release. The client
 # then fails the connect with `428 Precondition Required`, naming neither version. Pin it here.
 RUN npm install -g playwright@${PLAYWRIGHT_VERSION}
+
+# From 1.60 the server drops client-supplied browser args unless started with --unsafe, which
+# would also ungate executablePath - arbitrary command execution on an unauthenticated server.
+# This restores args alone and leaves the rest gated. It fails the build if it cannot, rather
+# than shipping an image whose browsers come up unhardened with nothing in the logs to say so.
+COPY playwright-server-allow-launch-args.sh /tmp/allow-launch-args.sh
+RUN chmod +x /tmp/allow-launch-args.sh && /tmp/allow-launch-args.sh && rm /tmp/allow-launch-args.sh
 
 ENV DISPLAY=:99 \
     SCREEN_GEOMETRY=1440x900x24 \
